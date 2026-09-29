@@ -15,5 +15,9 @@
     "prisma@6.19.3": true,
     "@prisma/engines@6.19.3": true,
     "esbuild@0.25.12": true
+  },
+  "dependencies": {
+    "@neon/config": "^1.8.2",
+    "@neon/env": "^1.4.7"
   }
 }
