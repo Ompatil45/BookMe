@@ -7,9 +7,14 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
+    "postinstall": "node ./scripts/run-prisma.mjs generate",
     "prisma:generate": "node ./scripts/run-prisma.mjs generate",
     "prisma:migrate": "node ./scripts/run-prisma.mjs migrate dev",
-    "prisma:studio": "node ./scripts/run-prisma.mjs studio"
+    "prisma:studio": "node ./scripts/run-prisma.mjs studio",
+    "prisma:seed": "node ./scripts/run-prisma.mjs db seed"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.16.3",

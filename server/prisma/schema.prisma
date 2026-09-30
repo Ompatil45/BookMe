@@ -1,8 +1,74 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "./generated"
 }
 
+
+
 datasource db {
+
   provider = "postgresql"
+
   url      = env("DATABASE_URL")
+
 }
+
+
+
+model Tenant {
+
+  id       String    @id @default(cuid())
+
+  name     String
+
+  slug     String    @unique
+
+  slots    Slot[]
+
+  bookings Booking[]
+
+}
+
+
+
+model Slot {
+
+  id        String   @id @default(cuid())
+
+  tenantId  String
+
+  startsAt  DateTime
+
+  endsAt    DateTime
+
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  booking   Booking?
+
+
+
+  @@index([tenantId, startsAt])
+
+}
+
+
+
+model Booking {
+
+  id         String @id @default(cuid())
+
+  tenantId   String
+
+  slotId     String @unique
+
+  guestName  String
+
+  guestEmail String
+
+  tenant     Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  slot       Slot   @relation(fields: [slotId], references: [id], onDelete: Cascade)
+
+}
+
+

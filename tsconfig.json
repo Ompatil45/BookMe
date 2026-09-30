@@ -1,0 +1,7 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./server/tsconfig.json" },
+    { "path": "./server/prisma/tsconfig.json" }
+  ]
+}

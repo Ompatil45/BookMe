@@ -4,14 +4,20 @@ overview: Build brief v1 backend-first — prove schema, seed, and booking API (
 todos:
   - id: env-db
     content: Confirm Postgres, .env, prisma generate, and /api/health
+    status: pending
   - id: schema-seed
     content: Add Tenant/Slot/Booking, unique slotId, migrate, seed one business and open slots
+    status: completed
   - id: booking-api
     content: GET /api/slots and POST /api/bookings with Zod and P2002 to 409; verify with curl
+    status: pending
   - id: public-ui
     content: Fix client bootstrap; public page lists slots, books, shows confirmation and 409
+    status: pending
   - id: verify
     content: Browser E2E plus two-tab double-book; booked slot leaves the list
+    status: pending
+isProject: false
 ---
 
 # BookMe v1 — how to approach it

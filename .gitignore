@@ -6,3 +6,8 @@ dist
 *.log
 .DS_Store
 dist/
+server/prisma/generated/
+server/prisma/seed.js
+server/prisma/seed.js.map
+server/prisma/seed.d.ts
+server/prisma/seed.d.ts.map
