@@ -4,11 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "nodemon src/index.js",
-    "start": "node src/index.js",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
-    "prisma:studio": "prisma studio"
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "prisma:generate": "node ./scripts/run-prisma.mjs generate",
+    "prisma:migrate": "node ./scripts/run-prisma.mjs migrate dev",
+    "prisma:studio": "node ./scripts/run-prisma.mjs studio"
   },
   "dependencies": {
     "@prisma/client": "^6.16.3",

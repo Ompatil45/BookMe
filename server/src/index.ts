@@ -1,4 +1,10 @@
-import "dotenv/config";
+import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const serverDir = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.join(serverDir, "../.env") });
+dotenv.config({ path: path.join(serverDir, "../../.env.local"), override: true });
 import express from "express";
 import cors from "cors";
 import { PrismaClient } from "@prisma/client";
