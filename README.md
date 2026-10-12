@@ -92,6 +92,7 @@ Run these commands from the repository root.
 
 | Command | Description |
 | --- | --- |
+| `npm run codex` | Open Codex CLI in this repository with GPT-6 Astra |
 | `npm run dev` | Start all workspace development servers |
 | `npm run dev:client` | Start only the Vite client |
 | `npm run dev:server` | Start only the Express API |
@@ -102,6 +103,22 @@ Run these commands from the repository root.
 | `npm run prisma:migrate -w server` | Create/apply a development migration |
 | `npm run prisma:seed -w server` | Reset and seed the demo tenant's slots |
 | `npm run prisma:studio -w server` | Open Prisma Studio |
+
+## Codex in the IDE
+
+This repository includes [`.codex/config.toml`](./.codex/config.toml), which is
+shared by the Codex IDE extension and Codex CLI. New Codex chats default to
+`gpt-6-astra` with medium reasoning effort.
+
+- In the Codex sidebar, start a new chat and use `/model` to confirm or change
+  the model for that chat.
+- In the IDE terminal, run `npm run codex` (or `npm.cmd run codex` when
+  PowerShell blocks `npm.ps1`).
+- Sign in through the Codex extension or run `codex login` if prompted.
+
+Model availability is controlled by the signed-in OpenAI account or workspace.
+If GPT-6 Astra is not enabled for that account, Codex will report an access
+error; use `/model` to select another available GPT-6 model.
 
 ## API
 

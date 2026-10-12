@@ -6,6 +6,7 @@
     "server"
   ],
   "scripts": {
+    "codex": "codex -C . --model gpt-6-astra",
     "dev": "npm run dev --workspaces --if-present",
     "dev:client": "npm run dev -w client",
     "dev:server": "npm run dev -w server"

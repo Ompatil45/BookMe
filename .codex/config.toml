@@ -1,0 +1,3 @@
+# Shared by the Codex IDE extension and Codex CLI for this trusted project.
+model = "gpt-6-astra"
+model_reasoning_effort = "medium"
