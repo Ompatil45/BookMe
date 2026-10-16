@@ -13,7 +13,7 @@ todos:
     status: pending
   - id: public-ui
     content: Fix client bootstrap; public page lists slots, books, shows confirmation and 409
-    status: pending
+    status: completed
   - id: verify
     content: Browser E2E plus two-tab double-book; booked slot leaves the list
     status: pending

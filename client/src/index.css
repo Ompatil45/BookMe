@@ -1,0 +1,163 @@
+:root {
+  color: #1c1917;
+  background: #f6f3ee;
+  font-family: "Segoe UI", sans-serif;
+  line-height: 1.5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.page {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 3rem 1.25rem 4rem;
+}
+
+.masthead h1 {
+  margin: 0.2rem 0 0.5rem;
+  font-size: 2.25rem;
+  letter-spacing: -0.03em;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #9a3412;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.lede,
+.muted {
+  color: #57534e;
+}
+
+.panel {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  background: #fff;
+  border: 1px solid #e7e5e4;
+  border-radius: 1rem;
+}
+
+.panel h2,
+.banner h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.15rem;
+}
+
+.slots {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.slots li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 0;
+  border-top: 1px solid #e7e5e4;
+}
+
+.slots li:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.slots strong,
+.slots span,
+.selected-time,
+.selected-time span {
+  display: block;
+}
+
+.slots span,
+.selected-time span {
+  color: #57534e;
+}
+
+.selected-time {
+  margin: 0 0 1rem;
+  font-weight: 700;
+}
+
+form {
+  display: grid;
+  gap: 0.9rem;
+}
+
+label {
+  display: grid;
+  gap: 0.35rem;
+  font-weight: 600;
+}
+
+input {
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #d6d3d1;
+  border-radius: 0.6rem;
+  background: #fff;
+}
+
+button {
+  padding: 0.6rem 0.9rem;
+  border: 0;
+  border-radius: 999px;
+  background: #9a3412;
+  color: #fff;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+button.secondary {
+  background: #e7e5e4;
+  color: #1c1917;
+}
+
+.actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.banner {
+  margin-top: 1.25rem;
+  padding: 1rem 1.1rem;
+  border-radius: 0.9rem;
+}
+
+.banner p {
+  margin: 0;
+}
+
+.success {
+  background: #ecfdf3;
+  color: #14532d;
+}
+
+.error {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.panel .banner {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
