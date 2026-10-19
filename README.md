@@ -16,7 +16,7 @@ The project is structured as an npm workspace with separate React and Express ap
 
 ## Tech stack
 
-- **Client:** React 19, Vite, TypeScript, React Router, Axios
+- **Client:** React 19, TypeScript, React Router, Axios
 - **Server:** Node.js, Express 5, TypeScript, Zod
 - **Database:** PostgreSQL on Neon
 - **ORM:** Prisma 6
