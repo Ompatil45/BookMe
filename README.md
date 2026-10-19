@@ -92,7 +92,9 @@ Run these commands from the repository root.
 
 | Command | Description |
 | --- | --- |
-| `npm run codex` | Open Codex CLI in this repository with GPT-6 Astra |
+| `npm run codex` | Open Codex CLI with an available model for the signed-in account |
+| `npm run codex:astra` | Request GPT-6 Astra explicitly when the account has access |
+| `npm run review` | Review all uncommitted changes against the active BookMe plan |
 | `npm run dev` | Start all workspace development servers |
 | `npm run dev:client` | Start only the Vite client |
 | `npm run dev:server` | Start only the Express API |
@@ -107,18 +109,23 @@ Run these commands from the repository root.
 ## Codex in the IDE
 
 This repository includes [`.codex/config.toml`](./.codex/config.toml), which is
-shared by the Codex IDE extension and Codex CLI. New Codex chats default to
-`gpt-6-astra` with medium reasoning effort.
+shared by the Codex IDE extension and Codex CLI. New chats use the signed-in
+account's available model with medium reasoning effort, so an unavailable
+preview model does not prevent Codex from starting.
 
-- In the Codex sidebar, start a new chat and use `/model` to confirm or change
-  the model for that chat.
-- In the IDE terminal, run `npm run codex` (or `npm.cmd run codex` when
-  PowerShell blocks `npm.ps1`).
+- The repository's `AGENTS.md` and `$bookme-review` skill make reviews follow
+  the active v2 plan and protect the existing booking contract.
+- In the Codex sidebar, run `/ide-context` so Codex can use the active editor
+  context you allow. It does not capture raw keystrokes or hidden unsaved text.
+- Run `/review` for an inline review of uncommitted changes, or run
+  `npm run review` in the terminal.
+- Run `npm run codex` for a normal session. Use `npm run codex:astra` only when
+  GPT-6 Astra is enabled for the signed-in account or workspace.
 - Sign in through the Codex extension or run `codex login` if prompted.
 
-Model availability is controlled by the signed-in OpenAI account or workspace.
-If GPT-6 Astra is not enabled for that account, Codex will report an access
-error; use `/model` to select another available GPT-6 model.
+Model availability is controlled by the signed-in OpenAI account, workspace,
+admin policy, and rollout. Repository code cannot grant access to GPT-6 Astra;
+use `/model` to inspect the models available in the current chat.
 
 ## API
 

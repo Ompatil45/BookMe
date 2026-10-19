@@ -1,0 +1,5 @@
+interface:
+  display_name: "BookMe Review Agent"
+  short_description: "Plan-aware review for BookMe changes"
+  default_prompt: "Use $bookme-review to review my current BookMe changes against the active plan."
+
