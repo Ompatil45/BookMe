@@ -35,8 +35,8 @@ function nextWeekdayMorning(base: Date): Date {
 async function main() {
   const tenant = await prisma.tenant.upsert({
     where: { slug: DEMO_SLUG },
-    create: { name: "Demo Studio", slug: DEMO_SLUG },
-    update: { name: "Demo Studio" },
+    create: { name: "Demo Studio", slug: DEMO_SLUG, timezone: "UTC", slotMinutes: SLOT_MINUTES},
+    update: { name: "Demo Studio", timezone: "UTC", slotMinutes: SLOT_MINUTES },
   });
 
   await prisma.booking.deleteMany({ where: { tenantId: tenant.id } });

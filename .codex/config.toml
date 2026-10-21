@@ -1,5 +1,0 @@
-# Shared by the Codex IDE extension and Codex CLI for this trusted project.
-# The model is selected by the signed-in account so unavailable preview models
-# do not prevent Codex from starting. Use `npm run codex:astra` to request
-# GPT-6 Astra explicitly when it is enabled for the account or workspace.
-model_reasoning_effort = "medium"
