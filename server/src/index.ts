@@ -5,10 +5,19 @@ import { fileURLToPath } from "url";
 const serverDir = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(serverDir, "../.env") });
 dotenv.config({ path: path.join(serverDir, "../../.env.local"), override: true });
+
+const env = z.object({
+  PORT: z.string().optional(),
+  CLIENT_ORIGIN: z.string().optional(),
+  JWT_ACCESS_SECRET: z.string().min(1),
+  JWT_REFRESH_SECRET: z.string().min(1),
+}).parse(process.env);
+
 import express from "express";
 import cors from "cors";
 import { z } from "zod";
 import { Prisma, PrismaClient } from "../prisma/generated/index.js";
+import cookieParser from "cookie-parser";
 
 const app = express();
 const prisma = new PrismaClient();
@@ -20,6 +29,7 @@ app.use(
   })
 );
 app.use(express.json());
+app.use(cookieParser());
 
 const createBookingSchema = z.object({
   slotId: z.union([z.cuid(), z.cuid2(), z.uuid()]),
