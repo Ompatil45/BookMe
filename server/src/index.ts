@@ -26,6 +26,7 @@ const port = process.env.PORT || 5000;
 app.use(
   cors({
     origin: process.env.CLIENT_ORIGIN || "http://localhost:5173",
+    credentials: true,
   })
 );
 app.use(express.json());
@@ -36,6 +37,16 @@ const createBookingSchema = z.object({
   guestName: z.string().trim().min(1),
   guestEmail: z.email(),
 });
+const signup = z.object({
+  name: z.string().trim().min(1),
+  email: z.email(),
+  password: z.string().trim().min(1),
+})
+const login = z.object({
+  email: z.email(),
+  password: z.string().trim().min(1),
+})
+
 
 app.get("/api/slots", async (_req, res) => {
   const slots = await prisma.slot.findMany({
@@ -102,6 +113,28 @@ app.post("/api/bookings", async (req, res) => {
     throw error;
   }
 });
+
+app.post("/api/auth/signup", async (req, res) => {
+  const parsed = signup.safeParse(req.body);
+  if(!parsed.success){
+    res.status(400).json({ error: "Invalid body" });
+    return;
+  }
+
+  const { name, password } = parsed.data;
+  const email = parsed.data.email.toLowerCase();
+  const existingUser = await prisma.user.findFirst();
+  if(existingUser){
+    res.status(409).json({error: "User already exists"})
+    return;
+  };
+  
+  
+    
+    
+  })
+
+
 app.get("/api/health", async (_req, res) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
