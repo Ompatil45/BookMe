@@ -1,33 +1,46 @@
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
-
-const serverDir = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.join(serverDir, "../.env") });
-dotenv.config({ path: path.join(serverDir, "../../.env.local"), override: true });
-
-const env = z.object({
-  PORT: z.string().optional(),
-  CLIENT_ORIGIN: z.string().optional(),
-  JWT_ACCESS_SECRET: z.string().min(1),
-  JWT_REFRESH_SECRET: z.string().min(1),
-}).parse(process.env);
-
 import express from "express";
 import cors from "cors";
 import { z } from "zod";
 import { Prisma, PrismaClient } from "../prisma/generated/index.js";
 import cookieParser from "cookie-parser";
+import {
+  hashPassword,
+  comparePassword,
+  createSession,
+  clearRefreshCookie,
+  rotateRefreshSession,
+  revokeRefreshSession,
+  requireAuth,
+  type AuthenticatedRequest,
+} from "./auth.js";
+
+const serverDir = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.join(serverDir, "../.env") });
+dotenv.config({ path: path.join(serverDir, "../../.env.local"), override: true });
+
+const env = z
+  .object({
+    PORT: z.string().optional(),
+    CLIENT_ORIGIN: z.string().optional(),
+    JWT_ACCESS_SECRET: z.string().min(1),
+    JWT_REFRESH_SECRET: z.string().min(1),
+  })
+  .parse(process.env);
 
 const app = express();
 const prisma = new PrismaClient();
-const port = process.env.PORT || 5000;
+const port = env.PORT ?? "5000";
+
+const INVALID_CREDENTIALS = "Invalid email or password";
 
 app.use(
   cors({
-    origin: process.env.CLIENT_ORIGIN || "http://localhost:5173",
+    origin: env.CLIENT_ORIGIN ?? "http://localhost:5173",
     credentials: true,
-  })
+  }),
 );
 app.use(express.json());
 app.use(cookieParser());
@@ -37,16 +50,17 @@ const createBookingSchema = z.object({
   guestName: z.string().trim().min(1),
   guestEmail: z.email(),
 });
-const signup = z.object({
+
+const signupSchema = z.object({
   name: z.string().trim().min(1),
   email: z.email(),
-  password: z.string().trim().min(1),
-})
-const login = z.object({
-  email: z.email(),
-  password: z.string().trim().min(1),
-})
+  password: z.string().min(8),
+});
 
+const loginSchema = z.object({
+  email: z.email(),
+  password: z.string().min(1),
+});
 
 app.get("/api/slots", async (_req, res) => {
   const slots = await prisma.slot.findMany({
@@ -115,70 +129,72 @@ app.post("/api/bookings", async (req, res) => {
 });
 
 app.post("/api/auth/signup", async (req, res) => {
-  const parsed = signup.safeParse(req.body);
-  if(!parsed.success){
-    res.status(400).json({error: "Invalid body"});
+  const parsed = signupSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "Invalid body" });
     return;
   }
 
-  const { password, name } = parsed.data;
   const email = parsed.data.email.toLowerCase();
-  
+
   const existingUser = await prisma.user.findFirst();
-  if(existingUser){
-    res.status(409).json({error: "User already exists"});
+  if (existingUser) {
+    res.status(409).json({ error: "User already exists" });
     return;
   }
 
-  const tenant = await prisma.tenant.findUnique({ where: { slug: "demo-studio" }});
-  if(!tenant){
-    res.status(500).json({error: "Tenant not found"});
+  const tenant = await prisma.tenant.findUnique({
+    where: { slug: "demo-studio" },
+  });
+  if (!tenant) {
+    res.status(500).json({ error: "Tenant not found" });
     return;
-  };
+  }
 
   const user = await prisma.user.create({
     data: {
       email,
       passwordHash: await hashPassword(parsed.data.password),
       tenantId: tenant.id,
-    }
-  }
-  );
-
-  const { accessToken } = await createSession(res, user);
-
-  res.status(201).json({ accessToken, user: { id: user.id, email: user.email }});
- 
+    },
   });
 
-app.post("api/auth/login", async (req, res) => {
-  const parsed = login.safeParse(req.body);
-  if(!parsed.success){
-    res.status(400).json({error: "Invalid body"});
-    return;
-  };
-  const email = parsed.data.email.toLowerCase();
-  const user = await prisma.user.findUnique({ where: { email }});
-  const ok = user && (await comparePassword(parsed.data.password, user.passwordHash));
-  if(!ok){
-    res.status(401).json({error: "Invalid credentials"});
+  const { accessToken } = await createSession(res, user, prisma);
+  res
+    .status(201)
+    .json({ accessToken, user: { id: user.id, email: user.email } });
+});
+
+app.post("/api/auth/login", async (req, res) => {
+  const parsed = loginSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "Invalid body" });
     return;
   }
 
-  const { accessToken } = await createSession(res, user);
+  const email = parsed.data.email.toLowerCase();
+  const user = await prisma.user.findUnique({ where: { email } });
+  const ok =
+    user && (await comparePassword(parsed.data.password, user.passwordHash));
+  if (!ok) {
+    res.status(401).json({ error: INVALID_CREDENTIALS });
+    return;
+  }
+
+  const { accessToken } = await createSession(res, user, prisma);
   res.json({ accessToken });
+});
 
-})
-
-app.post("api/auth/refresh", async (req, res) => {
+app.post("/api/auth/refresh", async (req, res) => {
   const raw = req.cookies.refreshToken;
-  if(!raw || typeof raw != "string"){
+  if (!raw || typeof raw !== "string") {
     clearRefreshCookie(res);
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
-  const result = await rotateRefreshSession(res, raw);
-  if(!result){
+
+  const result = await rotateRefreshSession(res, raw, prisma);
+  if (!result) {
     clearRefreshCookie(res);
     res.status(401).json({ error: "Unauthorized" });
     return;
@@ -187,6 +203,28 @@ app.post("api/auth/refresh", async (req, res) => {
   res.json({ accessToken: result.accessToken });
 });
 
+app.post("/api/auth/logout", async (req, res) => {
+  const raw = req.cookies.refreshToken;
+  if (raw && typeof raw === "string") {
+    await revokeRefreshSession(res, raw, prisma);
+  } else {
+    clearRefreshCookie(res);
+  }
+  res.status(204).send();
+});
+
+app.get("/api/me", requireAuth, async (req: AuthenticatedRequest, res) => {
+  const user = await prisma.user.findUnique({
+    where: { id: req.authUser!.id },
+    select: { id: true, email: true, tenantId: true },
+  });
+  if (!user) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  res.json(user);
+});
 
 app.get("/api/health", async (_req, res) => {
   try {
