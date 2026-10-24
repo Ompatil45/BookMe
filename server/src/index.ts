@@ -117,22 +117,75 @@ app.post("/api/bookings", async (req, res) => {
 app.post("/api/auth/signup", async (req, res) => {
   const parsed = signup.safeParse(req.body);
   if(!parsed.success){
-    res.status(400).json({ error: "Invalid body" });
+    res.status(400).json({error: "Invalid body"});
     return;
   }
 
-  const { name, password } = parsed.data;
+  const { password, name } = parsed.data;
   const email = parsed.data.email.toLowerCase();
+  
   const existingUser = await prisma.user.findFirst();
   if(existingUser){
-    res.status(409).json({error: "User already exists"})
+    res.status(409).json({error: "User already exists"});
+    return;
+  }
+
+  const tenant = await prisma.tenant.findUnique({ where: { slug: "demo-studio" }});
+  if(!tenant){
+    res.status(500).json({error: "Tenant not found"});
     return;
   };
-  
-  
-    
-    
-  })
+
+  const user = await prisma.user.create({
+    data: {
+      email,
+      passwordHash: await hashPassword(parsed.data.password),
+      tenantId: tenant.id,
+    }
+  }
+  );
+
+  const { accessToken } = await createSession(res, user);
+
+  res.status(201).json({ accessToken, user: { id: user.id, email: user.email }});
+ 
+  });
+
+app.post("api/auth/login", async (req, res) => {
+  const parsed = login.safeParse(req.body);
+  if(!parsed.success){
+    res.status(400).json({error: "Invalid body"});
+    return;
+  };
+  const email = parsed.data.email.toLowerCase();
+  const user = await prisma.user.findUnique({ where: { email }});
+  const ok = user && (await comparePassword(parsed.data.password, user.passwordHash));
+  if(!ok){
+    res.status(401).json({error: "Invalid credentials"});
+    return;
+  }
+
+  const { accessToken } = await createSession(res, user);
+  res.json({ accessToken });
+
+})
+
+app.post("api/auth/refresh", async (req, res) => {
+  const raw = req.cookies.refreshToken;
+  if(!raw || typeof raw != "string"){
+    clearRefreshCookie(res);
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  const result = await rotateRefreshSession(res, raw);
+  if(!result){
+    clearRefreshCookie(res);
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  res.json({ accessToken: result.accessToken });
+});
 
 
 app.get("/api/health", async (_req, res) => {
