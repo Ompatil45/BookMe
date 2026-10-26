@@ -1,6 +1,6 @@
 # BookMe
 
-BookMe is a booking and scheduling SaaS built with TypeScript. A business owner can create an account, configure weekly working hours, choose a slot length and timezone, and generate upcoming availability. Guests can browse and reserve open slots without creating an account.
+BookMe is a booking and scheduling SaaS built with TypeScript. A business owner can create an account, configure weekly working hours, choose a slot length and timezone, and generate upcoming availability. Guests can browse and reserve open slots without creating an account.A very simple process.
 
 The project is an npm workspace with separate React and Express applications. PostgreSQL is hosted on Neon and accessed through Prisma.
 
