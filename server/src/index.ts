@@ -151,13 +151,35 @@ app.post("/api/auth/signup", async (req, res) => {
     return;
   }
 
-  const user = await prisma.user.create({
-    data: {
-      email,
-      passwordHash: await hashPassword(parsed.data.password),
-      tenantId: tenant.id,
-    },
-  });
+  // Hash before opening the transaction so bcrypt does not hold a DB connection.
+  const passwordHash = await hashPassword(parsed.data.password);
+  let user;
+  try {
+    user = await prisma.$transaction(
+      async (tx) => {
+        // Recheck inside the transaction: the earlier check is only a fast path.
+        if (await tx.user.findFirst()) return null;
+        return tx.user.create({
+          data: { email, passwordHash, tenantId: tenant.id },
+        });
+      },
+      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+    );
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      (error.code === "P2034" || error.code === "P2002")
+    ) {
+      // A concurrent signup won the serialization or unique-email conflict.
+      res.status(409).json({ error: "User already exists" });
+      return;
+    }
+    throw error;
+  }
+  if (!user) {
+    res.status(409).json({ error: "User already exists" });
+    return;
+  }
 
   const { accessToken } = await createSession(res, user, prisma);
   res
