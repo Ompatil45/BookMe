@@ -13,7 +13,7 @@ The project is an npm workspace with separate React and Express applications. Po
 - Idempotent generation that preserves existing and booked slots
 - Public listing and guest booking of available slots
 - Database-backed double-booking protection with a `409` response
-- Zod validation for API request bodies
+- Zod validates the API request bodies
 - API and database health checks
 
 ## Tech stack
