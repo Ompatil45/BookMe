@@ -248,6 +248,9 @@ app.get("/api/me", requireAuth, async (req: AuthenticatedRequest, res) => {
   res.json(user);
 });
 
+app.get("/api/availability", async (req, res) => {});
+app.post("/api/availability", async (req, res) => {});
+
 app.get("/api/health", async (_req, res) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
